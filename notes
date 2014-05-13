@@ -1,0 +1,10 @@
+view disk geometry: sudo fdisk -l /dev/sdx
+dd usage example:  sudo dd if=boot of=/dev/sdb bs=512 count=1
+boot qemu from usb stick: sudo qemu-system-i386 -hdb /dev/sdx
+using gdb with qemu:
+    sudo qemu-system-i386 -s -S -hdb /dev/sdx
+    on another terminal:
+        gdb 
+        (gdb) target remote localhost:1234
+
+maybe useful ? : sudo qemu-system-i386 -drive file=/dev/sdb,index=0,cache=none
