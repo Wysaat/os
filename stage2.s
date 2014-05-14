@@ -508,6 +508,28 @@ pit_init:
     mov    al, ah
     out    0x40, al
 
+disable_scancode_tranlation:
+    mov    al, 0x20
+    out    0x64, al
+  .read_wait:
+    in     al, 0x64
+    and    al, 1
+    jz     .read_wait
+    in     al, 0x60
+    xor    al, 0b01000000
+
+    mov    bl, al
+
+    mov    al, 0x60
+    out    0x64, al
+  .write_wait:
+    in     al, 0x64
+    and    al, 2
+    jnz    .write_wait
+
+    mov    al, bl
+    out    0x60, al
+
     sti
 
 loop_at_the_end:
