@@ -411,6 +411,8 @@ idtr:
     dw idt_entries_end-idt_entries_begin-1
     dd idt_entries_begin
 
+GLOBAL_VARIABLES:
+
     string2     db "Hello, newline", 10, "Hello, again!", 0
     default_han db "Handling an interrupt using isr_default", 0
     GotIt    db "Got a tick..", 0
@@ -423,6 +425,9 @@ idtr:
     kb_byte dw 0  ; the last 0 terminates it
 
     video_pos dd video_mem
+
+    capslocked db 0
+    is_break_code db 0
 
 isr_default:
     cli
@@ -439,6 +444,11 @@ isr_keyboard:
 
     xor    eax, eax
     in     al, 0x60
+    cmp    al, 0xf0
+    jz     .got_break_code
+    mov    ebx, look_up_table
+    add    ebx, eax
+    mov    al, byte [ebx]
     mov byte [kb_byte], al
     mov    esi, kb_byte
     call   write
@@ -448,6 +458,141 @@ isr_keyboard:
     popa
     sti
     iret
+
+; scan code look-up table for scan code set 2
+look_up_table:
+    db    0      ; 0x0    nothing
+    db    0      ; 0x1    f9
+    db    0      ; 0x2    nothing
+    db    0      ; 0x3    f5
+    db    0      ; 0x4    f3
+    db    0      ; 0x5    f1
+    db    0      ; 0x6    f2
+    db    0      ; 0x7    f12
+    db    0      ; 0x8    nothing
+    db    0      ; 0x9    f10
+    db    0      ; 0xa    f8
+    db    0      ; 0xb    f6
+    db    0      ; 0xc    f4
+    db    0      ; 0xd    tab
+    db    0x60   ; 0xe    `
+    db    0      ; 0xf    nothing
+    db    0      ; 0x10   nothing
+    db    0      ; 0x11   left alt
+    db    0      ; 0x12   left shift
+    db    0      ; 0x13   nothing
+    db    0      ; 0x14   left control
+    db    0x71   ; 0x15   q
+    db    0x31   ; 0x16   1
+    db    0      ; 0x17   nothing
+    db    0      ; 0x18   nothing
+    db    0      ; 0x19   nothing
+    db    0x7a   ; 0x1a   z
+    db    0x73   ; 0x1b   s
+    db    0x61   ; 0x1c   a
+    db    0x77   ; 0x1d   w
+    db    0x32   ; 0x1e   2
+    db    0      ; 0x1f   nothing
+    db    0      ; 0x20   nothing
+    db    0x63   ; 0x21   c
+    db    0x78   ; 0x22   x
+    db    0x64   ; 0x23   d
+    db    0x65   ; 0x24   e
+    db    0x34   ; 0x25   4
+    db    0x33   ; 0x26   3
+    db    0      ; 0x27   nothing
+    db    0      ; 0x28   nothing
+    db    0x20   ; 0x29   space
+    db    0x76   ; 0x2a   v
+    db    0x66   ; 0x2b   f
+    db    0x74   ; 0x2c   t
+    db    0x72   ; 0x2d   r
+    db    0x35   ; 0x2e   5
+    db    0      ; 0x2f   nothing
+    db    0      ; 0x30   nothing
+    db    0x6e   ; 0x31   n
+    db    0x62   ; 0x32   b
+    db    0x68   ; 0x33   h
+    db    0x67   ; 0x34   g
+    db    0x79   ; 0x35   y
+    db    0x36   ; 0x36   6
+    db    0      ; 0x37   nothing
+    db    0      ; 0x38   nothing
+    db    0      ; 0x39   nothing
+    db    0x6d   ; 0x3a   m
+    db    0x6a   ; 0x3b   j
+    db    0x75   ; 0x3c   u
+    db    0x37   ; 0x3d   7
+    db    0x38   ; 0x3e   8
+    db    0      ; 0x3f   nothing
+    db    0      ; 0x40   nothing
+    db    0x2c   ; 0x41   ,
+    db    0x6b   ; 0x42   k
+    db    0x69   ; 0x43   i
+    db    0x6f   ; 0x44   o
+    db    0x30   ; 0x45   0
+    db    0x39   ; 0x46   9
+    db    0      ; 0x47   nothing
+    db    0      ; 0x48   nothing
+    db    0x2e   ; 0x49   .
+    db    0x2f   ; 0x4a   /
+    db    0x6c   ; 0x4b   l
+    db    0x3b   ; 0x4c   ;
+    db    0x70   ; 0x4d   p
+    db    0x2d   ; 0x4e   -
+    db    0      ; 0x4f   nothing
+    db    0      ; 0x50   nothing
+    db    0      ; 0x51   nothing
+    db    0x27   ; 0x52   '
+    db    0      ; 0x53   nothing
+    db    0x5b   ; 0x54   [
+    db    0x3d   ; 0x55   =
+    db    0      ; 0x56   nothing
+    db    0      ; 0x57   nothing
+    db    0      ; 0x58   capslock
+    db    0      ; 0x59   right shift
+    db    0      ; 0x5a   enter
+    db    0x5d   ; 0x5b   ]
+    db    0      ; 0x5c   nothing
+    db    0x5c   ; 0x5d   \
+    db    0      ; 0x5e   nothing
+    db    0      ; 0x5f   nothing
+    db    0      ; 0x60   nothing
+    db    0      ; 0x61   nothing
+    db    0      ; 0x62   nothing
+    db    0      ; 0x63   nothing
+    db    0      ; 0x64   nothing
+    db    0      ; 0x65   nothing
+    db    0      ; 0x66   baskspace
+    db    0      ; 0x67   nothing
+    db    0      ; 0x68   nothing
+    db    0x31   ; 0x69   (keypad) 1
+    db    0      ; 0x6a   nothing
+    db    0x34   ; 0x6b   (keypad) 4
+    db    0x37   ; 0x6c   (keypad) 7
+    db    0      ; 0x6d   nothing
+    db    0      ; 0x6e   nothing
+    db    0      ; 0x6f   nothing
+    db    0x30   ; 0x70   (keypad) 0
+    db    0x2e   ; 0x71   (keypad) .
+    db    0x32   ; 0x72   (keypad) 2
+    db    0x35   ; 0x73   (keypad) 5
+    db    0x36   ; 0x74   (keypad) 6
+    db    0x38   ; 0x75   (keypad) 8
+    db    0      ; 0x76   escape
+    db    0      ; 0x77   numberlock
+    db    0      ; 0x78   f11
+    db    0x2b   ; 0x79   (keypad) +
+    db    0x33   ; 0x7a   (keypad) 3
+    db    0x2d   ; 0x7b   (keypad) -
+    db    0x2a   ; 0x7c   (keypad) *
+    db    0x39   ; 0x7d   (keypad) 9
+    db    0      ; 0x7e   scrolllock
+    db    0      ; 0x7f   nothing
+    db    0      ; 0x80   nothing
+    db    0      ; 0x81   nothing
+    db    0      ; 0x82   nothing
+    db    0      ; 0x83   f7
 
 write:
     pusha
