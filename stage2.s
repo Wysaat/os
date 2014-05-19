@@ -441,11 +441,18 @@ isr_default:
 isr_keyboard:
     cli
     pusha
-
     xor    eax, eax
+    mov byte al, [is_break_code]
+    cmp    al, 1
+    jz     .break_code_stage2
     in     al, 0x60
+    mov    bl, al
     cmp    al, 0xf0
-    jz     .got_break_code
+    jz     .break_code_stage1
+
+  .look_up:
+    xor    eax, eax
+    mov    al, bl
     mov    ebx, look_up_table
     add    ebx, eax
     mov    al, byte [ebx]
@@ -453,11 +460,22 @@ isr_keyboard:
     mov    esi, kb_byte
     call   write
 
+  .end:
     mov    al, 0x20
     out    0x20, al
     popa
     sti
     iret
+
+  .break_code_stage1:
+    mov    eax, is_break_code
+    mov byte [eax], 1
+    jmp    .end
+
+  .break_code_stage2:
+    mov    eax, is_break_code
+    mov byte [eax], 0
+    jmp    .end
 
 ; scan code look-up table for scan code set 2
 look_up_table:
