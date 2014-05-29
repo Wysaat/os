@@ -22,10 +22,15 @@ start:
     mov    es, ax
     mov    ds, ax
 
+    mov    ax, 0x1000
+    mov    ss, ax
+    mov    sp, 0xfffc
+    xor    ax, ax
+
     mov    si, msg
     call   print
 
-    ; read  10 sectors (0, 0, 2)
+    ; read 10 sectors (0, 0, 2)
     mov    ch, 0
     mov    cl, 2
     mov    dh, 0
@@ -37,6 +42,22 @@ start:
 
     jc     failure
     cmp    al, 10
+    jnz    failure
+
+    ; read 8 sectors (0, 0, 11) to 0x60000
+    mov    ch, 0
+    mov    cl, 11
+    mov    dh, 0
+    mov    dl, 0x80
+    mov    ax, 0x6000
+    mov    es, ax
+    mov    bx, 0x0
+    mov    ah, 0x2
+    mov    al, 9
+    int    0x13
+
+    jc     failure
+    cmp    al, 9
     jnz    failure
 
 suceess:

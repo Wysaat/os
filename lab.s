@@ -1,4 +1,5 @@
 section .data
+  hi db "aaaaaaaaaa", 0
 
 section .text
     global _start
@@ -6,5 +7,5 @@ section .text
 _start:
     xor    eax, eax
     mov    al, 4
-    lea    esi, al
+    mov    esi, 4
     mov    ebx, 0xff

@@ -1,5 +1,5 @@
 view disk geometry: sudo fdisk -l /dev/sdx
-dd usage example:  sudo dd if=boot of=/dev/sdb bs=512 count=1
+dd usage example:  sudo dd if=boot of=/dev/sdx bs=512 count=1
 boot qemu from usb stick: sudo qemu-system-i386 -hdb /dev/sdx
 using gdb with qemu:
     sudo qemu-system-i386 -s -S -hdb /dev/sdx
@@ -8,3 +8,24 @@ using gdb with qemu:
         (gdb) target remote localhost:1234
 
 maybe useful ? : sudo qemu-system-i386 -drive file=/dev/sdb,index=0,cache=none
+
+qemu : (see http://wiki.qemu.org/download/qemu-doc.html#QEMU-PC-System-emulator for more options)
+    ‘-m megs’
+    Set virtual RAM size to megs megabytes. Default is 128 MiB. Optionally, a suffix of “M” or “G” can be used to signify a value in megabytes or gigabytes respectively.
+
+geometry of the usb stick:
+	Disk /dev/sdc: 2097 MB, 2097152000 bytes
+	65 heads, 62 sectors/track, 1016 cylinders, total 4096000 sectors
+	Units = sectors of 1 * 512 = 512 bytes
+	Sector size (logical/physical): 512 bytes / 512 bytes
+	I/O size (minimum/optimal): 512 bytes / 512 bytes
+	Disk identifier: 0x00000000
+
+gcc for kernel: (see http://www.osdever.net/bkerndev/Docs/creatingmain.htm)
+    gcc -Wall -O -fstrength-reduce -fomit-frame-pointer -finline-functions -nostdinc -fno-builtin -I./include -c -o main.o main.c
+
+ld: unrecognised emulation mode: 32
+    Supported emulations: elf_x86_64 elf32_x86_64 elf_i386 i386linux elf_l1om elf_k1om i386pep i386pe
+use -m, e.g. -m i386linux
+
+CFLAGS=-nostdlib -nostdinc -fno-builtin -fno-stack-protector

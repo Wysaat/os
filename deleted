@@ -1,3 +1,37 @@
+; enable_a20:
+;     in     al, 0x92
+;     test   al, 2
+;     jnz    .done
+;     or     al, 2
+;     and    al, 0xfe
+;     out    0x92, al
+;     .done:
+
+; read 20 sectors from (0, 0, 21) to 1mb(0x100000)
+; will jump to it once having paging enabled
+    mov    ch, 0     ; cylinder
+    mov    cl, 3    ; sector
+    mov    dh, 0     ; head
+    mov    dl, 0x80  ; drive
+    mov    ax, 0xf00
+    mov    es, ax
+    mov    bx, 0x10     ; es:bx buffer address pointer
+    mov    ah, 0x1
+    mov    al, 2
+    int    0x13
+    mov    ax, 0x7c0
+    mov    es, ax
+
+    jc     failure
+    cmp    al, 1
+    jnz    failure
+
+
+
+
+
+
+
     # ; print the value in dl
     # xor    dh, dh
     # mov    bx, dx
